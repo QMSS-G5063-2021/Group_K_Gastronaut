@@ -1,0 +1,127 @@
+---
+title: "States_Choropleth"
+output: html_document
+---
+
+```{r}
+rm(list=ls())
+
+# Normal Choroplath libs
+library(tidyverse)
+library(dplyr)
+library(urbnmapr)
+library(tmap)
+library(sf)
+library(stringr)
+
+
+# Leaflet Choroplath libs
+library(leaflet)
+library(tigris)
+
+#webscrapping
+library(rvest)
+
+
+
+
+
+
+data <- read.csv("state_2020.csv") 
+data_1 <- data %>%
+  select(State, Debt.Ratio..Total.Debts.Total.Assets) %>%
+  rename("Debt_Level" = "Debt.Ratio..Total.Debts.Total.Assets")
+
+#Debt was recorded as a character, converted to numeric
+data_1$Debt_Level <- str_remove_all(string = data_1$Debt_Level, pattern = "%")
+data_1$Debt_Level <- as.numeric(data_1$Debt_Level)
+
+
+
+# removing DC as it is a district
+states_sf <- get_urbn_map("states", sf = TRUE)
+states_sf <- states_sf %>%
+  filter(state_abbv != "DC")
+
+
+```
+
+
+
+```{r}
+# Debt levels by state
+states_sf <- states_sf %>%
+  rename(State = "state_name")
+
+state_debt <- left_join(data_1, states_sf, by = "State")
+head(state_debt)
+
+state_debt <- st_as_sf(state_debt)
+
+
+position <- c("center", "top")
+tm_shape(state_debt) + 
+  tm_polygons(col = "Debt_Level", title = "Debt Level", palette = "Purples", breaks = c(0,25,50,75, 100, 150,200,300,400, 500)) +
+  tm_text(text = "state_abbv", size = .75, remove.overlap = TRUE) +
+  tm_legend(scale = .80) + 
+  tm_layout(title = "State Debt Levels 2020 (%)", title.position = position) 
+
+
+```
+
+
+```{r}
+# webscraping credit ratings of each state from wikipedia
+
+credit <- read_html("https://en.wikipedia.org/wiki/List_of_U.S._states_by_credit_rating")
+
+credit_scores <- credit %>%
+  html_nodes("table") %>%
+  .[[3]] %>%
+  html_table(fill = TRUE)
+
+credit_scores <- credit_scores %>%
+  select(State, '2020') %>%
+  filter(State != "Source:[2]") %>%
+  rename(Credit_Rating = "2020")
+
+data_1 <- left_join(data_1, credit_scores, by = "State")
+
+
+```
+
+```{r}
+# Ask 
+leaflet_map <- states(cb = TRUE)
+
+# Getting rid of US Territories
+ter <- list("VI", "DC", "MP", "GU", "AS", "PR")
+leaflet_map <- leaflet_map %>%
+  filter(!STUSPS %in% ter) %>%
+  rename(State = "NAME")
+
+leaflet_debt <- left_join(data_1, leaflet_map, by = "State")
+leaflet_debt <- st_as_sf(leaflet_debt)
+
+content <- paste("State:", leaflet_debt$State,  "<br/>",
+                 "Debt Level:", leaflet_debt$Debt_Level, "<br/>",
+                 "Credit Rating:", leaflet_debt$Credit_Rating, "<br/>")
+colors <- colorNumeric("Purples", domain = leaflet_debt$Debt_Level)
+
+# Any ideas how to make the scale stronger and brighter
+leaflet(leaflet_debt) %>%
+  addProviderTiles("Stamen.Toner") %>%
+  setView( lng = -95.71289, lat = 37.09024, zoom = 3) %>%
+  addPolygons(fillColor = ~colors(leaflet_debt$Debt_Level),
+               fillOpacity = 4,
+               popup = ~content,
+               label = leaflet_debt$State) %>%
+  addLegend(pal = colors,
+            values = leaflet_debt$Debt_Level,
+            position = "bottomright",
+            title = "Debt Level (%)") 
+
+````
+
+
+
