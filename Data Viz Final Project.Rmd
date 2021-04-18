@@ -1,0 +1,270 @@
+---
+title: "Data Viz Final Project"
+author: "Samantha Li"
+date: "4/10/2021"
+output: html_document
+---
+
+```{r setup}
+setwd("/Users/SamLi/Downloads")
+d = read.csv("debt.csv")
+us_debt = read.csv("federal_debt_trends.csv")
+
+library(magrittr)
+library(rvest)
+# install and load necessary libraries
+# install.packages(c(tidyverse", "shiny", "leaflet", "RColorBrewer"))
+library(tidyverse)
+library(shiny)
+library(leaflet)
+library(RColorBrewer)
+```
+
+Finding debt over time for:
+Argentina
+US
+Peru
+China
+India
+
+```{r table 1}
+head(d,10)
+library(dplyr)
+debt = d
+debt = subset(d, Series.Code=="GC.DOD.TOTL.GD.ZS")
+debt = select(debt, Country.Name, Country.Code, Series.Name, X2016..YR2016., X2015..YR2015.)
+debt
+as.double(debt$X2016..YR2016.)
+na.omit(debt)
+debt
+```
+Portugal, Italy, Spain, Japan, US, Russia
+
+```{r table 2}
+# install tidyquant 
+library(tidyquant) 
+
+library(ggplot2)
+#install ggplot2 
+#Load the function to the local through Paul Bleicher's GitHub page
+#source("https://raw.githubusercontent.com/iascchen/VisHealth/master/R/calendarHeat.R")
+
+```
+
+
+```{r table 3}
+usa = us_debt
+usa = select(us_debt, year, federal_debt, gdp,debt_gdp)
+usa
+
+library(plotly)
+library(readr)
+library(dplyr)
+
+# dot-and-line chart
+usa_chart <- ggplot(usa, aes(x = year, y = debt_gdp)) +
+  xlab("Year") +
+  ylab("Debt-GDP") +
+  theme_minimal(base_size = 14, base_family = "Georgia")+
+  geom_point() +
+  geom_line()
+
+plot(usa_chart)
+
+usa_chart_interactive <- ggplotly(usa_chart)
+print(usa_chart_interactive)
+
+usa_chart <- ggplot(usa, aes(x = year, y = debt_gdp,
+                                             text = paste0("<b>Year: </b>", year,"<br>",
+                                                           "<b>Debt: </b>", federal_debt," dollars<br>",
+                                                           "<b>GDP: </b> $", gdp, " dollars<br>",
+                                                          "<b>Debt GDP ratio: </b> ", debt_gdp, "(ratio)"),
+                                             group = 1)) +
+  xlab("Year") +
+  ylab("Dollars ($)") +
+  theme_minimal(base_size = 14, base_family = "Georgia") +
+  geom_point() +
+  geom_line()
+
+usa_chart_interactive <- ggplotly(usa_chart, tooltip = "text") %>% 
+  config(displayModeBar = FALSE) %>%
+  layout(hoverlabel = list(bgcolor = "white",
+                           font = list(family = "Georgia")))
+
+print(usa_chart_interactive)
+
+```
+
+```{r table hdi}
+setwd("/Users/SamLi/Downloads")
+hdi = read.csv("human-development-index-escosura.csv")
+```
+
+```{r table hdi}
+library(rworldmap)
+
+#3 lines from @jlhoward 
+
+hdi.recent <- hdi[hdi$Year>2009,]
+hdi.recent <- aggregate(Historical.Index.of.Human.Development..Prados.de.la.Escosura.~Entity,hdi.recent,sum)
+
+#join data to a map
+gtdMap <- joinCountryData2Map( hdi.recent, 
+                               nameJoinColumn="Entity", 
+                               joinCode="NAME" )
+
+mapDevice('x11') #create a world shaped window
+
+#plot the map
+mapCountryData(gtdMap, 
+                nameColumnToPlot='Historical.Index.of.Human.Development..Prados.de.la.Escosura.', 
+                catMethod='fixedWidth', 
+                numCats=100 )
+
+
+```
+
+
+
+
+```{r table hdi-2}
+source("https://raw.githubusercontent.com/walkerke/teaching-with-datavis/master/wdi-leaflet/wdi_leaflet.R")
+library(leaflet)
+library(rgdal)
+library(WDI)
+```
+```{r table hdi-2a}
+hdiworld = hdi
+hdi
+library(dplyr)
+hdiworld <- hdiworld %>%
+  filter(Year == 2015) %>%
+  select(Entity, Historical.Index.of.Human.Development..Prados.de.la.Escosura.)  
+hdiworld
+colnames(hdiworld)[colnames(hdiworld) == "Historical.Index.of.Human.Development..Prados.de.la.Escosura."] <- "HDI"
+# Load required R packages
+library(tidyverse)
+library(highcharter) 
+
+# Set highcharter options
+options(highcharter.theme = hc_theme_smpl(tooltip = list(valueDecimals = 2)))
+
+# Load the world Map data
+data(worldgeojson, package = "highcharter")
+
+```
+```{r table 1}
+#worldgeojson
+
+hc <- highchart() %>%
+  hc_add_series_map(
+    worldgeojson, hdiworld, value = "HDI", joinBy = c('name','Entity'),
+    name = "HumanDevelopmentIndex"
+    )  %>% 
+  hc_colorAxis(stops = color_stops()) %>% 
+  hc_title(text = "World Map") %>% 
+  hc_subtitle(text = "HDI in 2015")
+
+hc
+```
+
+```{r table 2}
+#worldgeojson
+hdiworld2 <-hdi
+hdiworld2 <- hdiworld2 %>%
+  filter(Year == 2015) %>%
+  select(Code, Historical.Index.of.Human.Development..Prados.de.la.Escosura.)  
+
+hdiworld2
+colnames(hdiworld2)[colnames(hdiworld2) == "Historical.Index.of.Human.Development..Prados.de.la.Escosura."] <- "HDI"
+
+hc2 <- highchart() %>%
+  hc_add_series_map(
+    worldgeojson, hdiworld2, value = "HDI", joinBy = c('iso3','Code'),
+    name = "HumanDevelopmentIndex"
+    )  %>% 
+  hc_colorAxis(stops = color_stops()) %>% 
+  hc_title(text = "World Map") %>% 
+  hc_subtitle(text = "HDI in 2015")
+
+hc2
+```
+
+```{r table 3.1}
+# create interactive line chart
+library(highcharter)
+
+graph3 = hdi
+
+# prepare data
+library(dplyr)
+graph3 <- graph3 %>%
+  select(Year, Entity, Historical.Index.of.Human.Development..Prados.de.la.Escosura.)  
+
+colnames(graph3)[colnames(graph3) == "Historical.Index.of.Human.Development..Prados.de.la.Escosura."] <- "HDI"
+graph3
+
+# convert to long to wide format
+library(tidyr)
+plotdata <- spread(graph3, Entity, HDI)
+
+# generate graph
+#Finding debt over time for:
+#Argentina
+#China
+#India
+#Peru
+#US
+
+
+
+h <- highchart() %>% 
+  hc_xAxis(categories = plotdata$Year) %>% 
+  hc_add_series(name = "Argentina", 
+                data = plotdata$Argentina) %>% 
+  hc_add_series(name = "China", 
+                data = plotdata$China) %>%
+  hc_add_series(name = "India", 
+                data = plotdata$India) %>%
+  hc_add_series(name = "Peru", 
+                data = plotdata$Peru) %>%
+  hc_add_series(name = "United States of America", 
+                data = plotdata$"United States") 
+
+h
+```
+
+
+```{r table 3}
+
+# customize interactive line chart
+h <- h %>%
+  hc_title(text = "HDI by Country",
+           margin = 20, 
+           align = "left",
+           style = list(color = "steelblue")) %>% 
+  hc_subtitle(text = "1870 to 2015",
+              align = "left",
+              style = list(color = "#2b908f", 
+                           fontWeight = "bold")) %>% 
+  hc_credits(enabled = TRUE, # add credits
+             text = "HDI") %>% 
+  hc_legend(align = "left", 
+            verticalAlign = "top",
+            layout = "vertical", 
+            x = 0, 
+            y = 100) %>%
+  hc_tooltip(crosshairs = TRUE, 
+             backgroundColor = "#FCFFC5",
+             shared = TRUE, 
+             borderWidth = 4) %>% 
+  hc_exporting(enabled = TRUE)
+
+h
+
+```
+
+
+
+
+

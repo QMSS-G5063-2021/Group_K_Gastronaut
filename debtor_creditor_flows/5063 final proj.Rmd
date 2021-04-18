@@ -113,11 +113,6 @@ debt_2019 <- dssi %>% filter(Year == 2019)
 ```
 
 
-```{r}
-ggplot(debt_2000 %>% filter(Creditor == "World")) + geom_dotplot(aes(Debt_Stocks/10^9), binwidth = 1)
-
-ggplot(debt_2019 %>% filter(Creditor == "World")) + geom_dotplot(aes(Debt_Stocks/10^9), binwidth = 1)
-```
 
 ```{r}
 debt_2000 %>% filter(Creditor == "World")  %>% mutate(Debt_Stocks_Bil = Debt_Stocks/10^9) %>% select(Debtor, Creditor, Debt_Stocks_Bil) %>% arrange(desc(Debt_Stocks_Bil))
@@ -135,6 +130,42 @@ debt_2019 %>% group_by(Debtor_Region) %>% filter(Creditor == "World") %>% summar
 ```
 
 
+## Debt timeseries
+```{r}
+debt_series <- read_csv("debt_series.csv")
+
+debt_series <- debt_series[1:68, c(1, 7:26)]
+colnames(debt_series) <- c("Debtor", 2000:2019)
+debt_series <- debt_series %>% gather(key = "Year", value = "Debt_Stocks", 2:21)
+
+debt_series$Debt_Stocks <- as.numeric(debt_series$Debt_Stocks)
+debt_series$Year <- as.numeric(debt_series$Year)
+
+debt_series[which(is.na(debt_series$Debt_Stocks)), "Debt_Stocks"] <- 0
+
+debt_series <- debt_series %>% mutate(Debtor_Region = case_when(
+  Debtor %in% c("Angola", "Benin", "Burkina Faso", "Burundi", "Cabo Verde", "Cameroon", "Central African Republic", "Chad", "Comoros", "Congo, Dem. Rep.", "Congo, Rep.", "Cote d'Ivoire", "Djibouti", "Ethiopia", "Gambia, The", "Ghana", "Guinea", "Guinea-Bissau", "Kenya", "Lesotho", "Liberia", "Madagascar", "Malawi", "Mali", "Mauritania", "Mozambique", "Niger", "Nigeria", "Rwanda", "Sao Tome and Principe", "Senegal", "Sierra Leone", "Somalia", "Tanzania", "Togo", "Uganda", "Zambia") ~ "Africa",
+  Debtor %in% c("Bangladesh", "Bhutan", "Cambodia", "Kyrgyz Republic", "Lao PDR", "Maldives", "Mongolia", "Myanmar", "Nepal", "Pakistan", "Tajikistan", "Timor-Leste", "Uzbekistan") ~ "Asia",
+  Debtor %in% c("Afghanistan", "Yemen, Rep.") ~ "Middle East",
+  Debtor %in% c("Guyana", "Haiti", "Honduras", "Nicaragua") ~ "South & Central America",
+  Debtor %in% c("Dominica", "Grenada", "St. Lucia", "St. Vincent and the Grenadines") ~ "The Caribbeans",
+  Debtor %in% c("Fiji", "Papua New Guinea", "Samoa", "Solomon Islands", "Tonga", "Vanuatu") ~ "Pacific Islands",
+  Debtor %in% c("Kosovo", "Moldova") ~ "Europe"
+))
+```
+
+
+```{r}
+ggplotly(debt_series %>% group_by(Debtor_Region, Year) %>% summarize(total_debt_bil = sum(Debt_Stocks)/10^9, mean_debt_bil = mean(Debt_Stocks)/10^9) %>% ggplot() + geom_line(aes(x = Year, y = total_debt_bil, color = Debtor_Region)))
+
+ggplotly(debt_series %>% group_by(Debtor_Region, Year) %>% summarize(total_debt_bil = sum(Debt_Stocks)/10^9, mean_debt_bil = mean(Debt_Stocks)/10^9) %>% ggplot() + geom_line(aes(x = Year, y = mean_debt_bil, color = Debtor_Region)))
+```
+
+
+Total debt for Africa and Asia has risen drastically compared to other regions (I can further calculate % changes from t=0)
+
+Asia has the highest mean debt per country, and this has increased at a greater pace than the other regions
+
 ## Creditors
 
 #### 2000:
@@ -143,11 +174,6 @@ debt_2000 %>% group_by(Creditor) %>% summarize(total_lending_bil = sum(Debt_Stoc
 ```
 Top country creditors: Japan, France, Russian Federation, US, Germany, Italy, UK, China
 
-
-
-```{r}
-debt_2000 %>% group_by(Creditor) %>% summarize(total_lending_bil = sum(Debt_Stocks)/10^9) %>% ggplot() + geom_dotplot(aes(total_lending_bil))
-```
 
 
 #### 2019: 
@@ -236,27 +262,109 @@ selected_creditors <- selected_creditors %>% mutate(Debtor_Region = case_when(
 ```{r}
 creditors_years <- selected_creditors %>% group_by(Creditor, year) %>% summarize(total_lending_bil = sum(Debt_Stocks)/10^9)
 
-ggplot(creditors_years) + geom_line(aes(x = year, y = total_lending_bil, color = Creditor)) + theme_minimal()
 
 ggplotly(ggplot(creditors_years) + geom_line(aes(x = year, y = total_lending_bil, color = Creditor)) + theme_minimal()) 
 ```
 
 ```{r}
-ggplot(creditors_years %>% filter(Creditor %in% c("China", "Japan", "United States", "United Kingdom", "France", "Saudi Arabia", "India"))) + geom_line(aes(x = year, y = total_lending_bil, color = Creditor)) + theme_minimal()
-
 ggplotly(ggplot(creditors_years %>% filter(Creditor %in% c("China", "Japan", "United States", "United Kingdom", "France", "Saudi Arabia", "India"))) + geom_line(aes(x = year, y = total_lending_bil, color = Creditor)) + theme_minimal())
 
 ## Very clear jump from China :0
 ```
 
 
-## By region
+Networks
 ```{r}
-ggplot(selected_creditors %>% filter(Creditor %in% c("China", "Japan", "United States", "United Kingdom", "France", "Saudi Arabia", "India")) %>% filter(Debtor_Region == "Asia")) + geom_smooth(aes(x = year, y = Debt_Stocks, color = Creditor)) + theme_minimal()
+library(igraph)
+library(networkD3)
 
-ggplot(selected_creditors %>% filter(Creditor %in% c("China", "Japan", "United States", "United Kingdom", "France", "Saudi Arabia", "India")) %>% filter(Debtor_Region == "Africa")) + geom_smooth(aes(x = year, y = Debt_Stocks, color = Creditor)) + theme_minimal()
+links_2019 <- debt_2019 %>% select(Debtor, Creditor, Debt_Stocks) %>% filter(Debt_Stocks != 0) %>% filter(!Creditor %in% c("Other Bilateral", "Other Multiple Lenders", "Other Multilaterals", "World", "Multiple Lenders", "Bondholders"))
+
+links_2019 <- links_2019[, c(2, 1, 3)]
+
+links_2019$Debt_Stocks <- links_2019$Debt_Stocks/10^9 
+
+debtors_2019 <- links_2019 %>% group_by(Debtor) %>% summarize(size = sum(Debt_Stocks))
+debtors_2019$group <- "Debtor"
+debtors_2019 <- debtors_2019 %>% rename(name = Debtor)
+
+creditors_2019 <- links_2019 %>% group_by(Creditor) %>% summarize(size = sum(Debt_Stocks))
+creditors_2019$group <- "Creditor"
+creditors_2019 <- creditors_2019 %>% rename(name = Creditor)
+
+nodes_2019 <- rbind(debtors_2019, creditors_2019)
+
+nodes_2019 <- as.data.frame(nodes_2019)
+links_2019 <- as.data.frame(links_2019)
+
+nodes_2019$id <- 1:nrow(nodes_2019)
+
+nodes_2019 <- nodes_2019 %>% mutate(region = case_when(
+  name %in% c("Angola", "Benin", "Burkina Faso", "Burundi", "Cabo Verde", "Cameroon", "Central African Republic", "Chad", "Comoros", "Congo, Dem. Rep.", "Congo, Rep.", "Cote d'Ivoire", "Djibouti", "Ethiopia", "Gambia, The", "Ghana", "Guinea", "Guinea-Bissau", "Kenya", "Lesotho", "Liberia", "Madagascar", "Malawi", "Mali", "Mauritania", "Mozambique", "Niger", "Nigeria", "Rwanda", "Sao Tome and Principe", "Senegal", "Sierra Leone", "Somalia", "Tanzania", "Togo", "Uganda", "Zambia", "Cote D`Ivoire, Republic Of", "Libya", "Mauritius", "South Africa") ~ "Africa",
+  name %in% c("Bangladesh", "Bhutan", "Cambodia", "Kyrgyz Republic", "Lao PDR", "Maldives", "Mongolia", "Myanmar", "Nepal", "Pakistan", "Tajikistan", "Timor-Leste", "Uzbekistan", "China", "Hong Kong", "India", "Japan", "Korea, Republic Of", "Kuwait", "Malaysia", "Singapore", "Sri Lanka", "Thailand") ~ "Asia",
+  name %in% c("Afghanistan", "Yemen, Rep.", "Bahrain", "Egypt", "Iran, Islamic Republic Of", "Israel", "Saudi Arabia", "United Arab Emirates") ~ "Middle East",
+  name %in% c("Guyana", "Haiti", "Honduras", "Nicaragua", "Brazil", "Venezuela, Republic Bolivarian") ~ "South & Central America",
+  name %in% c("Dominica", "Grenada", "St. Lucia", "St. Vincent and the Grenadines", "Bahamas", "Barbados", "St. Kitts And Nevis", "Trinidad & Tobago", "St. Vincent & The Grenadines") ~ "The Caribbeans",
+  name %in% c("Canada", "United States") ~ "North America", 
+  name %in% c("Fiji", "Papua New Guinea", "Samoa", "Solomon Islands", "Tonga", "Vanuatu", "Australia") ~ "Oceania",
+  name %in% c("Kosovo", "Moldova", "Argentina", "Austria", "Belarus", "Belgium", "Czech Republic", "Denmark", "Finland", "France", "Germany, Fed.Rep. Of", "Greece", "Hungary", "Ireland", "Italy", "Netherlands", "Norway", "Poland", "Portugal", "Russian Federation", "Serbia", "Slovenia", "Spain", "Sweden", "Switzerland", "Turkey", "United Kingdom") ~ "Europe",
+  name %in% c("African Dev. Bank", "Asian Dev. Bank", "Inter-American Dev. Bank", "International Monetary Fund", "World Bank-IBRD", "World Bank-IDA") ~ "Organizations"
+))
+
+
+links_2019 <- left_join(links_2019, nodes_2019 %>% select(name, id), by = c("Creditor" = "name"))
+links_2019 <- left_join(links_2019, nodes_2019 %>% select(name, id), by = c("Debtor" = "name"))
+
+links_2019 <- links_2019 %>% rename(source = id.x, target = id.y)
+
+links_2019$source <- links_2019$source - 1
+links_2019$target <- links_2019$target - 1
 ```
 
 
+```{r}
+forceNetwork(Links = links_2019, 
+                   Nodes = nodes_2019, 
+                   Source = "source",
+                   Target = "target", 
+                   Value = "Debt_Stocks", 
+                   NodeID = "name",
+                   Nodesize = "size",
+                   Group = "region", 
+                   opacity = 0.9, zoom = FALSE, legend = TRUE, arrows = TRUE, height = 500, width = 1000)
+```
 
-## Next steps: Explore by region, network visualization
+
+Filtered for top creditors:
+```{r}
+forceNetwork(Links = links_2019 %>% filter(Creditor %in% top_creditors), 
+                   Nodes = nodes_2019, 
+                   Source = "source",
+                   Target = "target", 
+                   Value = "Debt_Stocks", 
+                   NodeID = "name",
+                   Nodesize = "size",
+                   Group = "region", 
+                   opacity = 0.9, zoom = TRUE, legend = TRUE, arrows = TRUE, height = 500, width = 1000)
+```
+
+
+```{r, eval = FALSE}
+library(visNetwork)
+
+nodes <- nodes_2019
+nodes <- nodes %>% rename(label = name, value = size, status = group, group = region) %>% mutate(tooltip = label) %>% mutate(shape = ifelse(status == "Debtor", "circle", "triangle"))
+edges <- links_2019
+edges <- edges %>% rename(from = source, to = target, value = Debt_Stocks)
+
+visNetwork(nodes, edges, height = "700px", width = "100%") %>%
+  visOptions(selectedBy = "group", 
+             highlightNearest = TRUE, 
+             nodesIdSelection = TRUE) %>%
+  visLegend(useGroups = TRUE, addNodes = data.frame(shape = "circle", color = c("darkgoldenrod2", "darkolivegreen4", "darkorange2", "aquamarine3", "pink", "cyan3", "darkorchid1", "darkgrey", "cornflowerblue"))) %>%
+  visPhysics(stabilization = FALSE) %>%
+  visEdges(arrows =list(to = list(),from= list()))
+
+## I can't man
+
+```
