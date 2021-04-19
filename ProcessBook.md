@@ -4,13 +4,13 @@
 Debt 
 
 
-## Graphs
+# Graphs
 
-### US
+## US
 
-### HDI
+## HDI
 
-### International Debt
+## International Debt
 In this section, we will explore the dynamics of international debt by analyzing debt flows between debtor nations and creditor nations/organizations.
 
 Data source: The World Bank
