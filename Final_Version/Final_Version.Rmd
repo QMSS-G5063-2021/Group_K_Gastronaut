@@ -3,7 +3,7 @@ title: "Final_Version_Data_Viz"
 output: html_document
 ---
 
-```{r, error = TRUE}
+```{r, error = TRUE, message=FALSE, warning=FALSE}
 
 rm(list=ls())
 
@@ -29,9 +29,6 @@ library(rworldmap)
 library(tidyr)
 library(igraph)
 library(networkD3)
-
-
-
 ```
 
 
@@ -119,7 +116,7 @@ states_sf <- states_sf %>%
   rename(State = "state_name")
 
 state_debt <- left_join(data_1, states_sf, by = "State")
-head(state_debt)
+#head(state_debt)
 
 state_debt <- st_as_sf(state_debt)
 
@@ -177,11 +174,7 @@ hc2
 
 ```{r}
 # create interactive line chart
-
-
 graph3 = hdi
-
-# prepare data
 
 graph3 <- graph3 %>%
   select(Year, Entity, Historical.Index.of.Human.Development..Prados.de.la.Escosura.)  
@@ -189,19 +182,7 @@ graph3 <- graph3 %>%
 colnames(graph3)[colnames(graph3) == "Historical.Index.of.Human.Development..Prados.de.la.Escosura."] <- "HDI"
 #graph3
 
-# convert to long to wide format
-
 plotdata <- spread(graph3, Entity, HDI)
-
-# generate graph
-#Finding debt over time for:
-#Argentina
-#China
-#India
-#Peru
-#US
-
-
 
 h <- highchart() %>% 
   hc_xAxis(categories = plotdata$Year) %>% 
@@ -215,9 +196,6 @@ h <- highchart() %>%
                 data = plotdata$Peru) %>%
   hc_add_series(name = "United States of America", 
                 data = plotdata$"United States") 
-
-h
-
 
 h <- h %>%
   hc_title(text = "HDI by Country",
@@ -247,7 +225,7 @@ h
 ```
 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 world_debt = read_csv("world_debt - Sheet1.csv")
 world_debt[world_debt == "no data"] <- NA
 df_transpose = as.data.frame(t(world_debt))
@@ -364,7 +342,7 @@ w2
 ```
 
 # 
-```{R}
+```{R, warning=FALSE, message=FALSE}
 dssi <- read_csv("dssi_2020.csv")
 
 dssi <- dssi %>% select(-`Series Code`) %>% gather("Year", "Value", 6:9)
@@ -398,7 +376,7 @@ dssi <- dssi %>% mutate(Debtor_Region = case_when(
 ```
 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 debt_series <- read_csv("debt_series.csv")
 
 debt_series <- debt_series[1:68, c(1, 7:26)]
@@ -422,7 +400,7 @@ debt_series <- debt_series %>% mutate(Debtor_Region = case_when(
 ```
 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 selected_creditors <- read_csv("selected_creditors.csv")
 
 selected_creditors <- selected_creditors %>% select(-`Series Code`)
@@ -460,7 +438,7 @@ selected_creditors <- selected_creditors %>% mutate(Debtor_Region = case_when(
 ```
 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 ggplotly(debt_series %>% group_by(Debtor_Region, Year) %>% summarize(total_debt_bil = sum(Debt_Stocks)/10^9 %>% round(digits = 2), mean_debt_bil = mean(Debt_Stocks)/10^9 %>% round(digits = 2)) %>% ggplot() + geom_line(aes(x = Year, y = total_debt_bil, color = Debtor_Region)) + labs(y = "Total debt (billions of US$)", title = "Total debt per region over time") + theme_minimal())
 
 ggplotly(debt_series %>% group_by(Debtor_Region, Year) %>% summarize(total_debt_bil = sum(Debt_Stocks)/10^9 %>% round(digits = 2), mean_debt_bil = mean(Debt_Stocks)/10^9 %>% round(digits = 2)) %>% ggplot() + geom_line(aes(x = Year, y = mean_debt_bil, color = Debtor_Region)) + labs(y = "Mean debt (billions of US$)", title = "Mean debt per region over time") + theme_minimal())
@@ -471,7 +449,7 @@ ggplotly(debt_series %>% group_by(Debtor_Region, Year) %>% summarize(total_debt_
 
 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 creditors_years <- selected_creditors %>% group_by(Creditor, year) %>% summarize(total_lending_bil = sum(Debt_Stocks)/10^9)
 
 
@@ -480,12 +458,13 @@ ggplotly(ggplot(creditors_years) + geom_line(aes(x = year, y = total_lending_bil
 ```
 
 
-```{R}
+```{R, warning=FALSE, message=FALSE}
 ggplotly(ggplot(creditors_years %>% filter(Creditor %in% c("China", "Japan", "United States", "United Kingdom", "France", "Saudi Arabia", "India"))) + geom_line(aes(x = year, y = total_lending_bil, color = Creditor)) + labs(x = "Year", y = "Total lending (billions of US$)", title = "Total lending over time (selected creditors)") + theme_minimal())
 
 
 ```
-```{R}
+
+```{R, warning=FALSE, message=FALSE}
 debt_2000 <- dssi %>% filter(Year == 2000)
 debt_2019 <- dssi %>% filter(Year == 2019)
 ```
@@ -502,7 +481,7 @@ debt_2019 %>% group_by(Creditor) %>% summarize(total_lending_bil = sum(Debt_Stoc
 
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 cols <- RColorBrewer::brewer.pal(8, "Dark2")
 
 top_creditors_2000 <- debt_2000 %>% filter(!Creditor %in% c("World", "Multiple Lenders", "Other Multiple Lenders", "Other Multilaterals", "Bondholders", "Other Bilateral")) %>% group_by(Creditor) %>% summarize(total_debt_bil = sum(Debt_Stocks)/10^9 %>% round(digits = 3)) %>% arrange(desc(total_debt_bil)) %>% head(n = 20)
@@ -515,7 +494,7 @@ top_creditors_2019 %>% hchart("pie", hcaes(x = Creditor, y = round(total_debt_bi
 
 ```
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 links_2019 <- debt_2019 %>% select(Debtor, Creditor, Debt_Stocks) %>% filter(Debt_Stocks != 0) %>% filter(!Creditor %in% c("Other Bilateral", "Other Multiple Lenders", "Other Multilaterals", "World", "Multiple Lenders", "Bondholders"))
 
 links_2019 <- links_2019[, c(2, 1, 3)]
@@ -562,7 +541,7 @@ links_2019$target <- links_2019$target - 1
 ```
 
 
-```{r}
+```{r, warning=FALSE, message=FALSE}
 script <- 'alert("Name: " + d.name + "\\n" + "Status: " + d.status + "\\n" + "Region: " + d.group + "\\n" + "Total debt/lending (billions of US$): " + d.size);'
 
 network_2019 <- forceNetwork(Links = links_2019, 
@@ -585,16 +564,7 @@ network_2019$x$nodes$size <- nodes_2019$size %>% round(digits = 3)
 
 ## Click on the node to see info popup
 network_2019
-
-
-
-
 ```
-
-
-
-
-
 
 
 
@@ -616,68 +586,9 @@ network_2019
 
 
 # Apendix
-```{r}
-credit <- read_html("https://en.wikipedia.org/wiki/List_of_U.S._states_by_credit_rating")
-
-credit_scores <- credit %>%
-  html_nodes("table") %>%
-  .[[3]] %>%
-  html_table(fill = TRUE)
-
-credit_scores <- credit_scores %>%
-  select(State, '2020') %>%
-  filter(State != "Source:[2]") %>%
-  rename(Credit_Rating = "2020")
-
-data_1 <- left_join(data_1, credit_scores, by = "State")
-
-
-leaflet_map <- states(cb = TRUE)
-
-# Getting rid of US Territories
-ter <- list("VI", "DC", "MP", "GU", "AS", "PR")
-leaflet_map <- leaflet_map %>%
-  filter(!STUSPS %in% ter) %>%
-  rename(State = "NAME")
-
-leaflet_debt <- left_join(data_1, leaflet_map, by = "State")
-leaflet_debt <- st_as_sf(leaflet_debt)
-
-content <- paste("State:", leaflet_debt$State,  "<br/>",
-                 "Debt Level:", leaflet_debt$Debt_Level, "<br/>",
-                 "Credit Rating:", leaflet_debt$Credit_Rating, "<br/>")
-colors <- colorNumeric("Purples", domain = leaflet_debt$Debt_Level)
-
-leaflet(leaflet_debt) %>%
-  addProviderTiles("Stamen.Toner") %>%
-  setView( lng = -95.71289, lat = 37.09024, zoom = 3) %>%
-  addPolygons(fillColor = ~colors(leaflet_debt$Debt_Level),
-               fillOpacity = 4,
-               popup = ~content,
-               label = leaflet_debt$State) %>%
-  addLegend(pal = colors,
-            values = leaflet_debt$Debt_Level,
-            position = "bottomright",
-            title = "Debt Level (%)") 
-
-
-########################################
-```
 
 
 ```{r, error = TRUE}
-leaflet(leaflet_debt) %>%
-  addProviderTiles("Stamen.Toner") %>%
-  setView( lng = -95.71289, lat = 37.09024, zoom = 3) %>%
-  addPolygons(fillColor = ~colors(leaflet_debt$Debt_Level),
-               fillOpacity = 4,
-               popup = ~content,
-               label = leaflet_debt$State) %>%
-  addLegend(pal = colors,
-            values = leaflet_debt$Debt_Level,
-            position = "bottomright",
-            title = "Debt Level (%)") 
-########################################
 #line chart
 usa_chart <- ggplot(usa, aes(x = year, y = debt_gdp)) +
   xlab("Year") +
@@ -691,6 +602,8 @@ plot(usa_chart)
 usa_chart_interactive <- ggplotly(usa_chart)
 print(usa_chart_interactive)
 
+
+h
 ```
 
 
