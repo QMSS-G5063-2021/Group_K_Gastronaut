@@ -1,0 +1,35 @@
+---
+title: "Covid Graph"
+output: html_document
+---
+
+```{r}
+rm(list=ls())
+
+library(dplyr)
+library(ggplot2)
+
+data <- read.csv("covid.csv")
+data <- data %>%
+  rename(Country = "X")
+data
+```
+
+
+```{r}
+p <- ggplot(data = data, aes( x = Country, y = Debt_Increase)) +
+  geom_bar(stat = "identity", fill = "dodgerblue1") +
+  geom_text(aes(label=Debt_Increase), vjust = .5, hjust = 2, color="black", size=5) +
+  scale_x_discrete(limits=c("China","France", "Spain", "United Kingdom", "Japan", "United States", "Canada")) +
+  ggtitle("Debt to GDP Change in 2020") +
+  xlab("Country") +
+  labs(caption = "Bloomberg, IFF") +
+  ylab("Percent Increase") +
+  coord_flip() +
+  theme_classic()
+
+p +  theme(axis.text.x = element_text(face = "bold", colour = "black")) +
+  theme(axis.text.y = element_text(face = "bold", colour = "black")) 
+
+
+```

@@ -15,15 +15,6 @@ library(sf)
 library(stringr)
 
 
-# Leaflet Choroplath libs
-library(leaflet)
-library(tigris)
-
-#webscrapping
-library(rvest)
-
-
-
 
 
 
@@ -69,8 +60,15 @@ tm_shape(state_debt) +
 
 ```
 
-
+#Throw this into the Apendix
 ```{r}
+# Leaflet Choroplath libs
+library(leaflet)
+library(tigris)
+
+#webscrapping
+library(rvest)
+
 # webscraping credit ratings of each state from wikipedia
 
 credit <- read_html("https://en.wikipedia.org/wiki/List_of_U.S._states_by_credit_rating")
@@ -90,8 +88,10 @@ data_1 <- left_join(data_1, credit_scores, by = "State")
 
 ```
 
+
+
 ```{r}
-# Ask 
+
 leaflet_map <- states(cb = TRUE)
 
 # Getting rid of US Territories
