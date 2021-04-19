@@ -8,7 +8,7 @@ Debt
 
 # Visualizations
 
-## Horizantal Bargraph: International Debt to GDP Changes due to Covid
+## Horizontal Bargraph: International Debt to GDP Changes due to Covid
 We wanted to start off with the reason we decided to look into this topic was that sovereign debt in general has been increasing at a steady clip around the world but with Covid it has jumped at a much faster rate. We decided to pick 7 developed economies and visualize just how much of an impact Covid has had on their fiscal situation. For this I was lucky and I was was able to pull clean data already for the graph. We decided to do a horizontal bar chart in descending order as to allow direct comparison amongst the 7 countries.    
 
 Data Source: Institue of International Finance
@@ -21,14 +21,14 @@ Data Source: Forbes
 https://www.forbes.com/sites/andrewdepietro/2020/11/23/states-with-the-most-and-least-debt-in-2020/?sh=759af88378a3
 
 
-## HDI
-In this section, we will explore the ways that HDI and debt - focusing on debt to gdp ratio are correlated with each other. 
-
 #### Interactive line graph - US Debt-GDP Ratio (2000-2020)
 This line graph was initially created with `ggplot` but then to make it more interactive and include more information, I used `ggplotly` to include the US debt to GDP Ratio, the US Debt, and the US GDP and the year displayed as a popup when on hovers over it after cleaning the data.  
 
 Data source: International Monetary Funds
 https://www.imf.org/external/datamapper/GGXWDG_NGDP@WEO/OEMDC/ADVEC/WEOWORLD
+
+## HDI
+In this section, we will explore the ways that HDI and debt - focusing on debt to gdp ratio are correlated with each other. 
 
 #### Chloropleth World Map - HDI (2015)
 Because the `HDI` is calculated every few years, the most complete data from the UN was 2015 and I wanted to visualize that on the world map. The first attempt was to use `mapDevice` as a world shaped window, but it took too long to process and therefore I opted to use the 'highcharter' function and imported the world map data from `worldgeojson`. I matched the country by their `ISO3` code (3 letter code representative of the country) after cleaning the data. There is also a scale on the bottom representing the color of the HDI from 0 to 1. When you hover above the country, a pop up with the name of the country and the HDI number will appear.
