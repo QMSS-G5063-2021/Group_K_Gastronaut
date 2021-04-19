@@ -25,22 +25,22 @@ https://www.forbes.com/sites/andrewdepietro/2020/11/23/states-with-the-most-and-
 In this section, we will explore the ways that HDI and debt - focusing on debt to gdp ratio are correlated with each other. 
 
 #### Interactive line graph - US Debt-GDP Ratio (2000-2020)
-This line graph was initially created with 'ggplot' but then to make it more interactive and include more information, I used 'ggplotly' to include the US debt to GDP Ratio, the US Debt, and the US GDP and the year displayed as a popup when on hovers over it after cleaning the data.  
+This line graph was initially created with `ggplot` but then to make it more interactive and include more information, I used `ggplotly` to include the US debt to GDP Ratio, the US Debt, and the US GDP and the year displayed as a popup when on hovers over it after cleaning the data.  
 
 Data source: International Monetary Funds
 https://www.imf.org/external/datamapper/GGXWDG_NGDP@WEO/OEMDC/ADVEC/WEOWORLD
 
 #### Chloropleth World Map - HDI (2015)
-Because the 'HDI' is calculated every few years, the most complete data from the UN was 2015 and I wanted to visualize that on the world map. The first attempt was to use 'mapDevice' as a world shaped window, but it took too long to process and therefore I opted to use the 'highcharter' function and imported the world map data from 'worldgeojson'. I matched the country by their 'ISO3' code (3 letter code representative of the country) after cleaning the data. There is also a scale on the bottom representing the color of the HDI from 0 to 1. When you hover above the country, a pop up with the name of the country and the HDI number will appear.
+Because the `HDI` is calculated every few years, the most complete data from the UN was 2015 and I wanted to visualize that on the world map. The first attempt was to use `mapDevice` as a world shaped window, but it took too long to process and therefore I opted to use the 'highcharter' function and imported the world map data from `worldgeojson`. I matched the country by their `ISO3` code (3 letter code representative of the country) after cleaning the data. There is also a scale on the bottom representing the color of the HDI from 0 to 1. When you hover above the country, a pop up with the name of the country and the HDI number will appear.
 
 #### Interactive Line Chart - HDI over time by country (1870 - 2015)
-After filtering the HDI data and converting the table from long to wide format, I was able to use the 'highchart()' to plot multiple series of countries of interest on the graph, specifically Argentina, China, India, Peru, and US over time. There are two versions of this, the first is when one hovers over the line that particular country's data will be displayed. The second version is customizing the interactive line chart to add hc_tooltip that allows one to see all of the HDI numbers for that particular year at once. 
+After filtering the HDI data and converting the table from long to wide format, I was able to use the `highchart()` to plot multiple series of countries of interest on the graph, specifically Argentina, China, India, Peru, and US over time. There are two versions of this, the first is when one hovers over the line that particular country's data will be displayed. The second version is customizing the interactive line chart to add `hc_tooltip` that allows one to see all of the HDI numbers for that particular year at once. 
 
 #### Interactive Line Chart - Debt:GDP Ratio over time by country (1980 - 2025)
-After transposing the data, replacing missing data with NAs, converting data to double - I plotted the line graph of the different countries using 'hchart()' of Argentina, China, India, Peru, and US over time as well to see the patterns between HDI and Debt:GDP ratio over time. Using the same process, the hc_tooltip was added to see all of one year's data at once. 
+After transposing the data, replacing missing data with NAs, converting data to double - I plotted the line graph of the different countries using `hchart()` of Argentina, China, India, Peru, and US over time as well to see the patterns between HDI and Debt:GDP ratio over time. Using the same process, the hc_tooltip was added to see all of one year's data at once. 
 
 #### Interactive Line Chart - Debt:GDP Ratio over time by advanced versus emerging markets
-This was to examine the differences and have a holistic view on the Debt:GDP ratio of advanced countries versus developing countries / emerging markets. This was just for benchmark purpooses and used the same 'highcharter()' functions above. As demonstrated in the graph, developed countries have a higher Debt:GDP ratio than developing countries. 
+This was to examine the differences and have a holistic view on the Debt:GDP ratio of advanced countries versus developing countries / emerging markets. This was just for benchmark purpooses and used the same `highcharter()` functions above. As demonstrated in the graph, developed countries have a higher Debt:GDP ratio than developing countries. 
 
 Data source: United Nations
 http://hdr.undp.org/en/countries
