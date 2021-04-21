@@ -1,12 +1,15 @@
 ---
 title: "Final_Version_Data_Viz"
-output: html_document
+output: 
+  flexdashboard::flex_dashboard:
+    vertical_layout: scroll
+    theme: cosmo
 ---
 
-```{r, error = TRUE, message=FALSE, warning=FALSE}
+```{r, error = TRUE, message=FALSE, warning=FALSE, include=FALSE}
 
 rm(list=ls())
-
+library(flexdashboard)
 library(dplyr)
 library(ggplot2)
 library(magrittr)
@@ -32,10 +35,10 @@ library(networkD3)
 ```
 
 
+Global Debt
+===================================== 
+### Covid Debt Surge
 
-
-
-# Covid Debt Surge
 ```{r}
 data <- read.csv("covid.csv")
 data <- data %>%
@@ -57,8 +60,7 @@ p +  theme(axis.text.x = element_text(face = "bold", colour = "black")) +
   theme(axis.text.y = element_text(face = "bold", colour = "black")) 
 
 ```
-
-#US National Debt
+### US National Debt
 ```{r}
 d = read.csv("debt.csv")
 us_debt = read.csv("federal_debt_trends.csv") 
@@ -92,9 +94,7 @@ print(usa_chart_interactive)
 
 ```
 
-
-
-# US State Debt
+### US State Debt
 ```{r}
 data <- read.csv("state_2020.csv") 
 data_1 <- data %>%
@@ -131,6 +131,9 @@ tm_shape(state_debt) +
 
 ```
 
+HDI
+===================================== 
+### HDI 2015 Chloropleth
 
 ```{r}
 hdi = read.csv("human-development-index-escosura.csv")
@@ -171,7 +174,7 @@ hc2 <- highchart() %>%
 
 hc2
 ```
-
+### NAME
 ```{r}
 # create interactive line chart
 graph3 = hdi
@@ -234,7 +237,7 @@ df_transpose <- df_transpose[-1,]
 ```
 
 
-
+### NAME
 ```{r}
 world_debt_gdp_ratio = df_transpose
 # generate graph
@@ -299,7 +302,7 @@ w
 
 
 
-
+### NAME
 ```{r}
 w2 <- highchart() %>% 
   hc_xAxis(categories = world_debt_gdp_ratio$Year) %>% 
@@ -341,7 +344,9 @@ w2
 
 ```
 
-# 
+Debt and Creditors
+===================================== 
+
 ```{R, warning=FALSE, message=FALSE}
 dssi <- read_csv("dssi_2020.csv")
 
@@ -374,7 +379,6 @@ dssi <- dssi %>% mutate(Debtor_Region = case_when(
 
 
 ```
-
 
 ```{r, warning=FALSE, message=FALSE}
 debt_series <- read_csv("debt_series.csv")
@@ -437,7 +441,7 @@ selected_creditors <- selected_creditors %>% mutate(Debtor_Region = case_when(
 
 ```
 
-
+### NAME
 ```{r, warning=FALSE, message=FALSE}
 ggplotly(debt_series %>% group_by(Debtor_Region, Year) %>% summarize(total_debt_bil = sum(Debt_Stocks)/10^9 %>% round(digits = 2), mean_debt_bil = mean(Debt_Stocks)/10^9 %>% round(digits = 2)) %>% ggplot() + geom_line(aes(x = Year, y = total_debt_bil, color = Debtor_Region)) + labs(y = "Total debt (billions of US$)", title = "Total debt per region over time") + theme_minimal())
 
@@ -448,7 +452,7 @@ ggplotly(debt_series %>% group_by(Debtor_Region, Year) %>% summarize(total_debt_
 
 
 
-
+### NAME
 ```{r, warning=FALSE, message=FALSE}
 creditors_years <- selected_creditors %>% group_by(Creditor, year) %>% summarize(total_lending_bil = sum(Debt_Stocks)/10^9)
 
@@ -457,17 +461,19 @@ ggplotly(ggplot(creditors_years) + geom_line(aes(x = year, y = total_lending_bil
 
 ```
 
-
+### NAME
 ```{R, warning=FALSE, message=FALSE}
 ggplotly(ggplot(creditors_years %>% filter(Creditor %in% c("China", "Japan", "United States", "United Kingdom", "France", "Saudi Arabia", "India"))) + geom_line(aes(x = year, y = total_lending_bil, color = Creditor)) + labs(x = "Year", y = "Total lending (billions of US$)", title = "Total lending over time (selected creditors)") + theme_minimal())
 
 
 ```
 
+
 ```{R, warning=FALSE, message=FALSE}
 debt_2000 <- dssi %>% filter(Year == 2000)
 debt_2019 <- dssi %>% filter(Year == 2019)
 ```
+
 
 ```{R}
 debt_2000 %>% group_by(Creditor) %>% summarize(total_lending_bil = sum(Debt_Stocks)/10^9) %>% arrange(desc(total_lending_bil))
@@ -480,7 +486,7 @@ debt_2019 %>% group_by(Creditor) %>% summarize(total_lending_bil = sum(Debt_Stoc
 
 
 ```
-
+### NAME
 ```{r, warning=FALSE, message=FALSE}
 cols <- RColorBrewer::brewer.pal(8, "Dark2")
 
@@ -493,7 +499,7 @@ top_creditors_2000 %>% hchart("pie", hcaes(x = Creditor, y = round(total_debt_bi
 top_creditors_2019 %>% hchart("pie", hcaes(x = Creditor, y = round(total_debt_bil, digits = 1)), name = "Total Lending (billions of US$)") %>% hc_title(text = "Top creditors in 2019")  %>% hc_caption(text = "Data: The World Bank (2021)") %>% hc_colors(cols)
 
 ```
-
+### NAME
 ```{r, warning=FALSE, message=FALSE}
 links_2019 <- debt_2019 %>% select(Debtor, Creditor, Debt_Stocks) %>% filter(Debt_Stocks != 0) %>% filter(!Creditor %in% c("Other Bilateral", "Other Multiple Lenders", "Other Multilaterals", "World", "Multiple Lenders", "Bondholders"))
 
@@ -540,7 +546,7 @@ links_2019$target <- links_2019$target - 1
 
 ```
 
-
+### NAME
 ```{r, warning=FALSE, message=FALSE}
 script <- 'alert("Name: " + d.name + "\\n" + "Status: " + d.status + "\\n" + "Region: " + d.group + "\\n" + "Total debt/lending (billions of US$): " + d.size);'
 
@@ -570,22 +576,9 @@ network_2019
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Apendix
+Appendix
+===================================== 
+### Apendix
 
 
 ```{r, error = TRUE}
