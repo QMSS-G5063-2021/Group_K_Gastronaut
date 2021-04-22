@@ -4,6 +4,7 @@ output:
   flexdashboard::flex_dashboard:
     vertical_layout: scroll
     theme: cosmo
+    orientation: rows
 ---
 
 ```{r, error = TRUE, message=FALSE, warning=FALSE, include=FALSE}
@@ -147,8 +148,12 @@ tm_shape(state_debt) +
 
 ```
 
-HDI
+HDI 
 ===================================== 
+
+Row {data-height=650}
+-------------------------------------
+
 ### HDI 2015 Chloropleth
 
 ```{r}
@@ -190,7 +195,12 @@ hc2 <- highchart() %>%
 
 hc2
 ```
-### NAME
+
+Row {data-height=350}
+-------------------------------------
+
+### Chart HDI Line Graph by Country
+
 ```{r}
 # create interactive line chart
 graph3 = hdi
@@ -253,7 +263,8 @@ df_transpose <- df_transpose[-1,]
 ```
 
 
-### NAME
+### Chart Debt:GDP Ratio by Country 
+
 ```{r}
 world_debt_gdp_ratio = df_transpose
 # generate graph
@@ -317,7 +328,7 @@ w
 ```
 
 
-
+-------------------------------------
 ### NAME
 ```{r}
 w2 <- highchart() %>% 
@@ -465,7 +476,7 @@ https://databank.worldbank.org/source/international-debt-statistics:-dssi
 
 Note: All debt levels in the following visualizations are denominated in current US$
 
-
+-------------------------------------
 ### Total debt per region (2000-2019)
 
 Firstly, I wanted to get an overview of how debt levels have changed over time. Here we can see that debtor countries from Asia and Africa have experienced a significant rise in total debt levels over the past two decades, compared to other regions. 
@@ -473,7 +484,7 @@ Firstly, I wanted to get an overview of how debt levels have changed over time. 
 ```{r, warning=FALSE, message=FALSE}
 ggplotly(debt_series %>% group_by(Debtor_Region, Year) %>% summarize(total_debt_bil = sum(Debt_Stocks)/10^9 %>% round(digits = 2), mean_debt_bil = mean(Debt_Stocks)/10^9 %>% round(digits = 2)) %>% ggplot() + geom_line(aes(x = Year, y = total_debt_bil, color = Debtor_Region)) + labs(y = "Total debt (billions of US$)", title = "Total debt per region over time") + theme_minimal())
 ```
-
+-------------------------------------
 ### Mean debt per region (2000-2019)
 
 To account for the different group sizes (e.g. half of the debtor nations are from Africa, which would disproportionately inflate the total amount of debt in Africa), it might make more sense to compare average debt levels across regions instead. Here, the picture has changed - mean debt levels in Asia have risen at a much greater rate than the other regions. All regions have experienced an increase in mean debt level, with the exception of the Caribbean nations whose mean debt levels have remained relatively constant. 
@@ -483,7 +494,8 @@ ggplotly(debt_series %>% group_by(Debtor_Region, Year) %>% summarize(total_debt_
 
 ```
 
-
+Row {data-height=650}
+-------------------------------------
 
 ### Total lending among top creditors (2000-2019)
 
@@ -498,7 +510,8 @@ ggplotly(ggplot(creditors_years) + geom_line(aes(x = year, y = total_lending_bil
 ```
 
 
-
+Row {data-height=350}
+-------------------------------------
 ### Breakdown of top creditors (2000)
 
 This pattern can also be visualized through the next two pie charts, which compares the breakdown of top 20 creditors for 2000 vs 2019. The most significant change comes from China, which was represented by a small slice of the pie in 2000 and has jumped to be the top creditor nation in 2019. This is no surprise given China’s increasing investments in developing countries such as through the Belt and Road Initiative and other debt diplomacy arrangements. In contrast, countries which took up a larger portion of the pie in 2000 such as France. Russia and the US are now represented by a much smaller slice. 
@@ -516,11 +529,16 @@ top_creditors_2000 %>% hchart("pie", hcaes(x = Creditor, y = round(total_debt_bi
 
 ```
 
+Row {data-height=350}
+-------------------------------------
 ### Breakdown of top creditors (2019)
 ```{r, warning=FALSE, message=FALSE}
 top_creditors_2019 %>% hchart("pie", hcaes(x = Creditor, y = round(total_debt_bil, digits = 1)), name = "Total Lending (billions of US$)") %>% hc_title(text = "Top creditors in 2019")  %>% hc_caption(text = "Data: The World Bank (2021)") %>% hc_colors(cols)
 
 ```
+
+
+-------------------------------------
 
 ### Debtor-Creditor Network (2019)
 
