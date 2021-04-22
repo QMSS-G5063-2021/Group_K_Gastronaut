@@ -344,7 +344,7 @@ w2
 
 ```
 
-Debt and Creditors
+International Debt Flows
 ===================================== 
 
 ```{R, warning=FALSE, message=FALSE}
@@ -378,9 +378,6 @@ dssi <- dssi %>% mutate(Debtor_Region = case_when(
 ))
 
 
-```
-
-```{r, warning=FALSE, message=FALSE}
 debt_series <- read_csv("debt_series.csv")
 
 debt_series <- debt_series[1:68, c(1, 7:26)]
@@ -401,10 +398,7 @@ debt_series <- debt_series %>% mutate(Debtor_Region = case_when(
   Debtor %in% c("Fiji", "Papua New Guinea", "Samoa", "Solomon Islands", "Tonga", "Vanuatu") ~ "Pacific Islands",
   Debtor %in% c("Kosovo", "Moldova") ~ "Europe"
 ))
-```
 
-
-```{r, warning=FALSE, message=FALSE}
 selected_creditors <- read_csv("selected_creditors.csv")
 
 selected_creditors <- selected_creditors %>% select(-`Series Code`)
@@ -441,54 +435,35 @@ selected_creditors <- selected_creditors %>% mutate(Debtor_Region = case_when(
 
 ```
 
-### NAME
+### Total debt per region (2000-2019)
 ```{r, warning=FALSE, message=FALSE}
 ggplotly(debt_series %>% group_by(Debtor_Region, Year) %>% summarize(total_debt_bil = sum(Debt_Stocks)/10^9 %>% round(digits = 2), mean_debt_bil = mean(Debt_Stocks)/10^9 %>% round(digits = 2)) %>% ggplot() + geom_line(aes(x = Year, y = total_debt_bil, color = Debtor_Region)) + labs(y = "Total debt (billions of US$)", title = "Total debt per region over time") + theme_minimal())
+```
 
+### Mean debt per region (2000-2019)
+```{r, warning=FALSE, message=FALSE}
 ggplotly(debt_series %>% group_by(Debtor_Region, Year) %>% summarize(total_debt_bil = sum(Debt_Stocks)/10^9 %>% round(digits = 2), mean_debt_bil = mean(Debt_Stocks)/10^9 %>% round(digits = 2)) %>% ggplot() + geom_line(aes(x = Year, y = mean_debt_bil, color = Debtor_Region)) + labs(y = "Mean debt (billions of US$)", title = "Mean debt per region over time") + theme_minimal())
-
 
 ```
 
 
 
-### NAME
+### Total lending among top creditors (2000-2019)
 ```{r, warning=FALSE, message=FALSE}
 creditors_years <- selected_creditors %>% group_by(Creditor, year) %>% summarize(total_lending_bil = sum(Debt_Stocks)/10^9)
 
 
-ggplotly(ggplot(creditors_years) + geom_line(aes(x = year, y = total_lending_bil, color = Creditor)) + labs(x = "Year", y = "Total lending (billions of US$)", title = "Total lending over time (selected creditors)") + theme_minimal()) 
-
-```
-
-### NAME
-```{R, warning=FALSE, message=FALSE}
-ggplotly(ggplot(creditors_years %>% filter(Creditor %in% c("China", "Japan", "United States", "United Kingdom", "France", "Saudi Arabia", "India"))) + geom_line(aes(x = year, y = total_lending_bil, color = Creditor)) + labs(x = "Year", y = "Total lending (billions of US$)", title = "Total lending over time (selected creditors)") + theme_minimal())
-
+ggplotly(ggplot(creditors_years) + geom_line(aes(x = year, y = total_lending_bil, color = Creditor)) + labs(x = "Year", y = "Total lending (billions of US$)", title = "Total lending over time (top creditors)") + theme_minimal()) 
 
 ```
 
 
-```{R, warning=FALSE, message=FALSE}
-debt_2000 <- dssi %>% filter(Year == 2000)
-debt_2019 <- dssi %>% filter(Year == 2019)
-```
 
-
-```{R}
-debt_2000 %>% group_by(Creditor) %>% summarize(total_lending_bil = sum(Debt_Stocks)/10^9) %>% arrange(desc(total_lending_bil))
-
-
-```
-
-```{R}
-debt_2019 %>% group_by(Creditor) %>% summarize(total_lending_bil = sum(Debt_Stocks)/10^9) %>% arrange(desc(total_lending_bil))
-
-
-```
-### NAME
+### Breakdown of top creditors (2000)
 ```{r, warning=FALSE, message=FALSE}
 cols <- RColorBrewer::brewer.pal(8, "Dark2")
+debt_2000 <- dssi %>% filter(Year == 2000)
+debt_2019 <- dssi %>% filter(Year == 2019)
 
 top_creditors_2000 <- debt_2000 %>% filter(!Creditor %in% c("World", "Multiple Lenders", "Other Multiple Lenders", "Other Multilaterals", "Bondholders", "Other Bilateral")) %>% group_by(Creditor) %>% summarize(total_debt_bil = sum(Debt_Stocks)/10^9 %>% round(digits = 3)) %>% arrange(desc(total_debt_bil)) %>% head(n = 20)
 
@@ -496,10 +471,15 @@ top_creditors_2019 <- debt_2019 %>% filter(!Creditor %in% c("World", "Multiple L
 
 top_creditors_2000 %>% hchart("pie", hcaes(x = Creditor, y = round(total_debt_bil, digits = 1)), name = "Total Lending (billions of US$)") %>% hc_title(text = "Top creditors in 2000")  %>% hc_caption(text = "Data: The World Bank (2021)") %>% hc_colors(cols)
 
+```
+
+### Breakdown of top creditors (2019)
+```{r, warning=FALSE, message=FALSE}
 top_creditors_2019 %>% hchart("pie", hcaes(x = Creditor, y = round(total_debt_bil, digits = 1)), name = "Total Lending (billions of US$)") %>% hc_title(text = "Top creditors in 2019")  %>% hc_caption(text = "Data: The World Bank (2021)") %>% hc_colors(cols)
 
 ```
-### NAME
+
+### Debtor-Creditor Network (2019)
 ```{r, warning=FALSE, message=FALSE}
 links_2019 <- debt_2019 %>% select(Debtor, Creditor, Debt_Stocks) %>% filter(Debt_Stocks != 0) %>% filter(!Creditor %in% c("Other Bilateral", "Other Multiple Lenders", "Other Multilaterals", "World", "Multiple Lenders", "Bondholders"))
 
@@ -546,7 +526,6 @@ links_2019$target <- links_2019$target - 1
 
 ```
 
-### NAME
 ```{r, warning=FALSE, message=FALSE}
 script <- 'alert("Name: " + d.name + "\\n" + "Status: " + d.status + "\\n" + "Region: " + d.group + "\\n" + "Total debt/lending (billions of US$): " + d.size);'
 
@@ -560,7 +539,7 @@ network_2019 <- forceNetwork(Links = links_2019,
                    Group = "region", 
              fontSize = 20,
              linkDistance = 80,
-                   opacity = 0.9, zoom = TRUE, legend = TRUE, arrows = TRUE, height = 500, width = 1000, bounded = TRUE, clickAction = script)
+                   opacity = 0.9, zoom = FALSE, legend = TRUE, arrows = TRUE, height = 500, width = 1000, bounded = TRUE, clickAction = script)
 
 
 
@@ -578,7 +557,7 @@ network_2019
 
 Appendix
 ===================================== 
-### Apendix
+### Appendix
 
 
 ```{r, error = TRUE}
