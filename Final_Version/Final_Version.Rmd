@@ -542,7 +542,9 @@ top_creditors_2019 %>% hchart("pie", hcaes(x = Creditor, y = round(total_debt_bi
 
 ### Debtor-Creditor Network (2019)
 
-Lastly, this visualization shows the network between all debtors and creditors. China, for instance, lends to countries in Africa, Asia and Oceania, whereas regional banks are more targeted, such as the Inter-American Development Bank which only lends to nations in South and Central America. Interestingly, Pakistan borrows mostly from European countries. Click on the individual nodes for more information on total debt/lending levels. 
+Lastly, this visualization shows the network between all debtors and creditors. The size of the nodes is proportional to the total debt levels (in 2019) for that particular country or organization, and the width of the arrows is proportional to the amount of debt flows between two particular nodes. I have also tried to color the nodes in accordance to their geographical region (e.g. countries in Asia/Oceania/Middle East are shades of red and orange, while countries in the Americas/Caribbeans are shades of blue). 
+
+China, for instance, lends to countries in Africa, Asia and Oceania, whereas regional banks are more targeted, such as the Inter-American Development Bank which only lends to nations in South and Central America. Interestingly, Pakistan borrows mostly from European countries. Click on the individual nodes for more information on total debt/lending levels. 
 
 
 ```{r, warning=FALSE, message=FALSE}
@@ -604,7 +606,9 @@ network_2019 <- forceNetwork(Links = links_2019,
                    Group = "region", 
              fontSize = 20,
              linkDistance = 80,
-                   opacity = 0.9, zoom = FALSE, legend = TRUE, arrows = TRUE, height = 500, width = 1000, bounded = TRUE, clickAction = script)
+                   opacity = 0.9, zoom = FALSE, legend = TRUE, arrows = TRUE, height = 500, width = 1000, bounded = TRUE, clickAction = script,
+             colourScale = JS('d3.scaleOrdinal()
+           .range(["#ce8000", "#619e8d", "#fa8072", "#584a91", "#ff748c", "6897bb", "a75572", "c7c9c7", "0a75ad"]);'))
 
 
 
