@@ -34,6 +34,20 @@ library(igraph)
 library(networkD3)
 ```
 
+Overview
+===================================== 
+### Project Topic: Debt Levels 
+
+This is our final project for QMSS 5063: Data Visualization (Columbia University, Spring 2021).   
+Members: Luke Artola, Samantha Li, Yun Yee Tan (Group K)
+
+With the rise of COVID-19, governments around the world have drastically increased their amount of debt. Within the developed countries, the US' debt-to-GDP ratio has now become 102% and Japan has skyrocketed to 234%, which are staggering numbers. The developing countries have been hit with an even harder blow. Given this renewed interest and concern over debt levels, we decided to gear our project towards providing information that might be of interest to those who work on fiscal and economic development policy.
+
+We will be examining government debt from a few different levels:
+1. First, we will look at national debt within the US and how debt levels vary across states.
+2. Next, we will zoom out on a global level to explore the geographical distribution of debt as well as its relationship with the Human Development Index.
+3. Finally, we will explore international debt flows and the network between debtor and creditor nations.
+
 
 Global Debt
 ===================================== 
@@ -60,7 +74,9 @@ p +  theme(axis.text.x = element_text(face = "bold", colour = "black")) +
   theme(axis.text.y = element_text(face = "bold", colour = "black")) 
 
 ```
+
 ### US National Debt
+
 ```{r}
 d = read.csv("debt.csv")
 us_debt = read.csv("federal_debt_trends.csv") 
@@ -435,12 +451,33 @@ selected_creditors <- selected_creditors %>% mutate(Debtor_Region = case_when(
 
 ```
 
+
+### International Debt Flows
+
+Given the major blow that COVID-19 has dealt to the world’s poorest countries, in 2020, the World Bank and the International Monetary Fund established the Debt Service Suspension Initiative with the G-20. Under this initiative, which has been extended through December 2021, 73 countries are eligible for a temporary suspension of debt-service payments owed to their official bilateral creditors. 
+
+Part of this initiative includes greater debt transparency. For the first time last year, the World Bank released the breakdown of individual creditor countries. Previously, such data was only available at a generalized “creditor region” level. This newly-released database provides us with a lot of insight on the vast network of debt flows between debtor and creditor nations. 
+
+This section will explore international debt flows and the relationships between debtors and creditors. We will first look at the overall patterns of debt levels over time. Then, using the newly released data from the World Bank, we will examine the breakdown of creditors, including countries and multilateral organizations. Finally, we will explore the entire network of debtor nations and their creditors. The data shows us that global debt has increased drastically in the past two decades, and this increase is most significant for Asian countries. On the creditor side, the most striking trend comes from the dramatic increase in lending from China. The international debt landscape is expected to continue evolving over time and governments and policy analysts should continue to keep a close eye on these dynamics.
+
+Data source: International Debt Statistics (The World Bank, 2021)
+https://databank.worldbank.org/source/international-debt-statistics:-dssi
+
+Note: All debt levels in the following visualizations are denominated in current US$
+
+
 ### Total debt per region (2000-2019)
+
+Firstly, I wanted to get an overview of how debt levels have changed over time. Here we can see that debtor countries from Asia and Africa have experienced a significant rise in total debt levels over the past two decades, compared to other regions. 
+
 ```{r, warning=FALSE, message=FALSE}
 ggplotly(debt_series %>% group_by(Debtor_Region, Year) %>% summarize(total_debt_bil = sum(Debt_Stocks)/10^9 %>% round(digits = 2), mean_debt_bil = mean(Debt_Stocks)/10^9 %>% round(digits = 2)) %>% ggplot() + geom_line(aes(x = Year, y = total_debt_bil, color = Debtor_Region)) + labs(y = "Total debt (billions of US$)", title = "Total debt per region over time") + theme_minimal())
 ```
 
 ### Mean debt per region (2000-2019)
+
+To account for the different group sizes (e.g. half of the debtor nations are from Africa, which would disproportionately inflate the total amount of debt in Africa), it might make more sense to compare average debt levels across regions instead. Here, the picture has changed - mean debt levels in Asia have risen at a much greater rate than the other regions. All regions have experienced an increase in mean debt level, with the exception of the Caribbean nations whose mean debt levels have remained relatively constant. 
+
 ```{r, warning=FALSE, message=FALSE}
 ggplotly(debt_series %>% group_by(Debtor_Region, Year) %>% summarize(total_debt_bil = sum(Debt_Stocks)/10^9 %>% round(digits = 2), mean_debt_bil = mean(Debt_Stocks)/10^9 %>% round(digits = 2)) %>% ggplot() + geom_line(aes(x = Year, y = mean_debt_bil, color = Debtor_Region)) + labs(y = "Mean debt (billions of US$)", title = "Mean debt per region over time") + theme_minimal())
 
@@ -449,6 +486,9 @@ ggplotly(debt_series %>% group_by(Debtor_Region, Year) %>% summarize(total_debt_
 
 
 ### Total lending among top creditors (2000-2019)
+
+Next, I wanted to visualize how the breakdown of individual creditors has changed over time. The line graph here shows that total lending has increased significantly for organizations like the World Bank and Asian Development Bank. In terms of creditor countries, we see a drastic increase in lending from China, while the US and France have decreased their total lending. 
+
 ```{r, warning=FALSE, message=FALSE}
 creditors_years <- selected_creditors %>% group_by(Creditor, year) %>% summarize(total_lending_bil = sum(Debt_Stocks)/10^9)
 
@@ -460,6 +500,9 @@ ggplotly(ggplot(creditors_years) + geom_line(aes(x = year, y = total_lending_bil
 
 
 ### Breakdown of top creditors (2000)
+
+This pattern can also be visualized through the next two pie charts, which compares the breakdown of top 20 creditors for 2000 vs 2019. The most significant change comes from China, which was represented by a small slice of the pie in 2000 and has jumped to be the top creditor nation in 2019. This is no surprise given China’s increasing investments in developing countries such as through the Belt and Road Initiative and other debt diplomacy arrangements. In contrast, countries which took up a larger portion of the pie in 2000 such as France. Russia and the US are now represented by a much smaller slice. 
+
 ```{r, warning=FALSE, message=FALSE}
 cols <- RColorBrewer::brewer.pal(8, "Dark2")
 debt_2000 <- dssi %>% filter(Year == 2000)
@@ -480,6 +523,10 @@ top_creditors_2019 %>% hchart("pie", hcaes(x = Creditor, y = round(total_debt_bi
 ```
 
 ### Debtor-Creditor Network (2019)
+
+Lastly, this visualization shows the network between all debtors and creditors. China, for instance, lends to countries in Africa, Asia and Oceania, whereas regional banks are more targeted, such as the Inter-American Development Bank which only lends to nations in South and Central America. Interestingly, Pakistan borrows mostly from European countries. Click on the individual nodes for more information on total debt/lending levels. 
+
+
 ```{r, warning=FALSE, message=FALSE}
 links_2019 <- debt_2019 %>% select(Debtor, Creditor, Debt_Stocks) %>% filter(Debt_Stocks != 0) %>% filter(!Creditor %in% c("Other Bilateral", "Other Multiple Lenders", "Other Multilaterals", "World", "Multiple Lenders", "Bondholders"))
 
