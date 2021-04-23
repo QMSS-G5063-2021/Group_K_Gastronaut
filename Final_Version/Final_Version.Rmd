@@ -41,7 +41,7 @@ Overview
 This is our final project for QMSS 5063: Data Visualization (Columbia University, Spring 2021).   
 Members: Luke Artola, Samantha Li, Yun Yee Tan (Group K)
 
-With the rise of COVID-19, governments around the world have drastically increased their amount of debt. Within the developed countries, the US' debt-to-GDP ratio has now become 102% and Japan has skyrocketed to 234%, which are staggering numbers. The developing countries have been hit with an even harder blow. Given this renewed interest and concern over debt levels, we decided to gear our project towards providing information that might be of interest to those who work on fiscal and economic development policy.
+With the rise of COVID-19, governments around the world have drastically increased their amount of debt. Within the developed countries, the US' debt-to-GDP ratio has now become 128% and Japan has skyrocketed to 234%, which are staggering numbers. The developing countries have been hit with an even harder blow. Given this renewed interest and concern over debt levels, we decided to gear our project towards providing information that might be of interest to those who work on fiscal and economic development policy.
 
 We will be examining government debt from a few different levels:  
 
@@ -51,11 +51,20 @@ We will be examining government debt from a few different levels:
 
 3. Finally, we will explore international debt flows and the network between debtor and creditor nations.
 
-Our findings demonstrate that due to the continual increase in national debt in developing and developed countries, policy analysts should keep an eye on the ongoing situation and mitigate potential negative implications sovereign debt can have through investing in programs contributing to economic growth and understanding their nation’s debt flows and network.
+Our findings demonstrate that due to the continual increase in national debt in developing and developed countries, policy analysts should keep an eye on the ongoing situation and mitigate potential negative implications sovereign debt can have through investing in programs contributing to economic growth and understanding their nations debt flows and network.
 
 Global Debt
 ===================================== 
-### Covid Debt Surge
+
+### The Financial Effects of Covid
+The surprise COVID-19 pandemic has left a lasting impression on the world, one in which will not be forgotten anytime soon. One of the effects of the pandemic has been a unprecedented surge in sovereign debt. As of October 2020 the Debt to GDP ratio of advanced economies was a staggering 123.9% with emerging markets resulting in a 62.5%. Developed economies have not seen this level of debt since the second great war. The major difference between then and now is governments feel much more comfortable holding larger balance sheets and do not seem to have the political will power to make the necessary fiscal adjustments needed to reduce it. Within the past year governments increased their borrowing by 19.5 trillion dollars alone  Source(https://www.bloomberg.com/graphics/2021-coronavirus-global-debt/#:~:text=The%20Covid%2D19%20Pandemic%20Has%20Added%20%2419.5%20Trillion%20to%20Global%20Debt)
+
+
+In this section we will explore the surge in sovereign debt due to the COVID-19 pandemic and in particular focus on the fiscal health of the United States.
+
+
+### Covid Debt Surge 2020
+Within the past year alone countries have seen double digit increases in sovereign debt with countries such as Canada, US, and Japan seeing at least a 25% increase in their debt commitments. This is rather worrying for some countries in particular as highlighted previously with the United States having over 100% debt to GDP and japan being well over 200% debt to gdp. 
 
 ```{r}
 data <- read.csv("covid.csv")
@@ -80,6 +89,7 @@ p +  theme(axis.text.x = element_text(face = "bold", colour = "black")) +
 ```
 
 ### US National Debt
+Historically prior to 2000 every major increase in the United States debt to GDP was a result of war or economic downturn which subsequently reduced after a short period of time. This is not the case anymore as we can see from the graph the debt has been steadily increasing over the past 20 years with two major spikes due to the financial crisis of 08 and now the COVID-19 pandemic. The current debt to GDP ratio of the United States is 128% which is the largest the United States has ever had. The Congressional budget office using the assumption of ceteris paribus regarding new legislation and recessions projects that within the next 30 the US debt will reach over 200% with a little over 10% annual deficit. Source(CBO)
 
 ```{r}
 d = read.csv("debt.csv")
@@ -115,6 +125,7 @@ usa_chart_interactive
 ```
 
 ### US State Debt
+Many of the services provided to people on a daily basis is a result of state and local programs that are not funded by the federal government. Given that it is also important to keep an eye on the fiscal health of state governments. As it is rare for a state to default on their debt it is not unheard of as Arkansas in the 40's ultimately defaulted on their loan obligations. Based on the map it seems that many states are doing relatively well managing their balance sheets but there are a few states that should continued to be looked at closely. Illinois and New Jersey in particular currently is at 468% and 440% debt to GDP. As it is not an immediate concern given another economic downturn these states and others with elevated levels of debt will find it difficult to fiance future budgets without receiving government assistance which is not always guaranteed.
 ```{r}
 data <- read.csv("state_2020.csv") 
 data_1 <- data %>%
