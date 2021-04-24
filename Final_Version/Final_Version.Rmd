@@ -178,8 +178,6 @@ A 2013 study by the World Bank found that if the debt-to-GDP ratio exceeds 77% f
 
 According to another literature by Zaghdoudi 2018, the optimal debt level is 41.7775%. Below this debt threshold, external debt has a positive effect on human development. Any 1% increase in the external debt ratio induces an increase in the HDI of 0.02%. However, above the debt threshold, external debt becomes detrimental to human development since HDI decreases by 0.01% when external debt ratio increases by 1%. (Source: https://ideas.repec.org/a/ebl/ecbull/eb-18-00571.html)
 
-This idea is further bolstered by a study Amani Alzahrani conducted in 2018, proving that Government debt affects HDI and FDI (Foreign Direct Investment) because it influences all aspects of investment. In particular, it reduces public investment. "As government debt increases, the government spends more of its budgets on interest costs, and such a move crowds out public investment by affecting local and foreign investors. In the US, for example, the CBO estimated in 2017 that the interest costs of government debt is likely to reach $5.2 trillion. In other words, the interest charges will triple the current program used by the government to run the national economic needs." This to a potential hypothesis that to reverse this debt increase, a method of doing so would be to invest in programs that increase public investment (contributing to higher HDI such as education, etc) which will help reduce debt levels in the long run. 
-
 In our research, we have chosen a variety of countries based on a mix of developed and developing countries due to their interesting backgrounds to examine both their debt:gdp ratio and the hdi levels for a holistic comparison and review (to see if we can gain interesting insights). Especially given COVID-19, where the crisis is hitting hard on all of human development’s constitutive elements, we wanted to see if we can advise current policies based on historical data. Comprehensive debt relief and restructuring is essential to ensure a recovery from COVID that is both inclusive and sustainable. This is because investment in these programs will ultimately decrease debt, and therefore why we should be looking at HDI as a metric to evaluate how we can reduce our debt by investing into programs contributing to economic growth. 
 
 ### Understanding HDI around the world
@@ -389,7 +387,7 @@ w2 <- w2 %>%
               style = list(color = "#2b908f", 
                            fontWeight = "bold")) %>% 
   hc_credits(enabled = TRUE, # add credits
-             text = "world_debt_gdp_ratio") %>% 
+             text = "International Monetary Fund") %>% 
   hc_legend(align = "left", 
             verticalAlign = "top",
             layout = "vertical", 
@@ -407,6 +405,10 @@ w2
 
 
 ```
+### What does this tell us?
+
+Our research confirms and is bolstered by Amani Alzahrani's study conducted in 2018. Since debt impacts HDI, understanding the level of HDI we are at and how we can improve HDI can actually improve our debt:GDP ratio in the long run. Government debt affects HDI and FDI (Foreign Direct Investment) because it influences all aspects of investment. In particular, it reduces public investment. "As government debt increases, the government spends more of its budgets on interest costs, and such a move crowds out public investment by affecting local and foreign investors. In the US, for example, the CBO estimated in 2017 that the interest costs of government debt is likely to reach $5.2 trillion. In other words, the interest charges will triple the current program used by the government to run the national economic needs." This leads us to a potential hypothesis that to reverse this debt increase, a method of doing so would be to invest in programs that increase public investment (contributing to higher HDI such as education, etc) which will help reduce debt levels in the long run. 
+
 
 International Debt Flows
 ===================================== 
