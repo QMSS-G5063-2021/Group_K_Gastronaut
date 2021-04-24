@@ -63,7 +63,7 @@ The surprise COVID-19 pandemic has left a lasting impression on the world, one i
 In this section we will explore the surge in sovereign debt due to the COVID-19 pandemic and in particular focus on the fiscal health of the United States.
 
 
-### Covid Debt Surge 2020
+### How has Covid impacted stable, developed countries' debt?
 Within the past year alone countries have seen double digit increases in sovereign debt with countries such as Canada, US, and Japan seeing at least a 25% increase in their debt commitments. This is rather worrying for some countries in particular as highlighted previously with the United States having over 100% debt to GDP and japan being well over 200% debt to gdp. 
 
 ### Covid Debt Surge 2020
@@ -90,10 +90,10 @@ p +  theme(axis.text.x = element_text(face = "bold", colour = "black")) +
 
 ```
 
-### US National Debt
+### Focusing in on US National Debt
 Historically prior to 2000 every major increase in the United States debt to GDP was a result of war or economic downturn which subsequently reduced after a short period of time. This is not the case anymore as we can see from the graph the debt has been steadily increasing over the past 20 years with two major spikes due to the financial crisis of 08 and now the COVID-19 pandemic. The current debt to GDP ratio of the United States is 128% which is the largest the United States has ever had. The Congressional budget office using the assumption of ceteris paribus regarding new legislation and recessions projects that within the next 30 the US debt will reach over 200% with a little over 10% annual deficit. Source(CBO)
 
-### US National Debt to GDP Ratio
+### US National Debt to GDP Ratio Trend
 
 ```{r}
 d = read.csv("debt.csv")
@@ -126,7 +126,7 @@ usa_chart_interactive
 
 ```
 
-### US State Debt
+### Deeper dive into US debt by states
 Many of the services provided to people on a daily basis is a result of state and local programs that are not funded by the federal government. Given that it is also important to keep an eye on the fiscal health of state governments. As it is rare for a state to default on their debt it is not unheard of as Arkansas in the 40's ultimately defaulted on their loan obligations. Based on the map it seems that many states are doing relatively well managing their balance sheets but there are a few states that should continued to be looked at closely. Illinois and New Jersey in particular currently is at 468% and 440% debt to GDP. As it is not an immediate concern given another economic downturn these states and others with elevated levels of debt will find it difficult to fiance future budgets without receiving government assistance which is not always guaranteed.
 
 ### US State Debt
@@ -516,7 +516,7 @@ https://databank.worldbank.org/source/international-debt-statistics:-dssi
 Note: All debt levels in the following visualizations are denominated in current US$
 
 
-### Total debt per region (2000-2019)
+### Understanding the total debt per region between 2019 to 2020. 
 
 Firstly, I wanted to get an overview of how debt levels have changed over time. Here we can see that debtor countries from Asia and Africa have experienced a significant rise in total debt levels over the past two decades, compared to other regions. 
 
@@ -527,7 +527,7 @@ ggplotly(debt_series %>% group_by(Debtor_Region, Year) %>% summarize(total_debt_
 ```
 
 
-### Mean debt per region (2000-2019)
+### Which region has the largest mean debt between 2019 and 2020?
 
 To account for the different group sizes (e.g. half of the debtor nations are from Africa, which would disproportionately inflate the total amount of debt in Africa), it might make more sense to compare average debt levels across regions instead. Here, the picture has changed - mean debt levels in Asia have risen at a much greater rate than the other regions. All regions have experienced an increase in mean debt level, with the exception of the Caribbean nations whose mean debt levels have remained relatively constant. 
 
@@ -538,7 +538,7 @@ ggplotly(debt_series %>% group_by(Debtor_Region, Year) %>% summarize(total_debt_
 
 ```
 
-### Total lending among top creditors (2000-2019)
+### Which creditors lended the most money over time and how much?
 
 Next, I wanted to visualize how the breakdown of individual creditors has changed over time. The line graph here shows that total lending has increased significantly for organizations like the World Bank and Asian Development Bank. In terms of creditor countries, we see a drastic increase in lending from China, while the US and France have decreased their total lending. 
 
@@ -552,7 +552,7 @@ ggplotly(ggplot(creditors_years) + geom_line(aes(x = year, y = total_lending_bil
 
 ```
 
-### Breakdown of top creditors (2000 and 2019)
+### Who are the top creditors in 2020 and how did it change from 2019?
 This pattern can also be visualized through the next two pie charts, which compares the breakdown of top 20 creditors for 2000 vs 2019. The most significant change comes from China, which was represented by a small slice of the pie in 2000 and has jumped to be the top creditor nation in 2019. This is no surprise given China’s increasing investments in developing countries such as through the Belt and Road Initiative and other debt diplomacy arrangements. In contrast, countries which took up a larger portion of the pie in 2000 such as France. Russia and the US are now represented by a much smaller slice. 
 
 ### Breakdown of top creditors (2000)
@@ -577,7 +577,7 @@ top_creditors_2019 %>% hchart("pie", hcaes(x = Creditor, y = round(total_debt_bi
 
 ```
 
-### Debtor-Creditor Network (2019)
+### What does the network between the debtors and creditors look like?
 
 Lastly, this visualization shows the network between all debtors and creditors. The size of the nodes is proportional to the total debt levels (in 2019) for that particular country or organization, and the width of the arrows is proportional to the amount of debt flows between two particular nodes. I have also tried to color the nodes in accordance to their geographical region (e.g. countries in Asia/Oceania/Middle East are shades of red and orange, while countries in the Americas/Caribbeans are shades of blue). 
 
