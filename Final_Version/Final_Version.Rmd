@@ -182,6 +182,9 @@ This idea is further bolstered by a study Amani Alzahrani conducted in 2018, pro
 
 In our research, we have chosen a variety of countries based on a mix of developed and developing countries due to their interesting backgrounds to examine both their debt:gdp ratio and the hdi levels for a holistic comparison and review (to see if we can gain interesting insights). Especially given COVID-19, where the crisis is hitting hard on all of human development’s constitutive elements, we wanted to see if we can advise current policies based on historical data. Comprehensive debt relief and restructuring is essential to ensure a recovery from COVID that is both inclusive and sustainable. This is because investment in these programs will ultimately decrease debt, and therefore why we should be looking at HDI as a metric to evaluate how we can reduce our debt by investing into programs contributing to economic growth. 
 
+### Understanding HDI around the world
+
+The UN Human Development Report is released every few year with updated figures. Given that the most complete dataset was in 2015, we have chosen to examine the HDI of the world to gain a better understanding about the status of a country than the Per Capita Income method by World Bank. The map demonstrates that North America and European countries generally have a higher HDI than the rest of the world. 
 
 ### HDI 2015 Chloropleth World Map
 
@@ -224,6 +227,10 @@ hc2 <- highchart() %>%
 
 hc2
 ```
+
+
+### Understanding HDI around the world
+We've chosen 5 different countries with varying HDI levels to examine the trend between HDI and debt:GDP ratio. This research examines Argentine, China, India, Peru, and the United States because of their interesting economic statuses. We see that the US takes the lead in HDI, followed by the rest. 
 
 ### HDI Over Time by Country
 
@@ -288,6 +295,11 @@ names(df_transpose) <- lapply(df_transpose[1, ], as.character)
 df_transpose <- df_transpose[-1,] 
 ```
 
+### Understanding the Debt:GDP ratio by country
+"The debt-to-GDP ratio is the metric comparing a country's public debt to its gross domestic product (GDP). By comparing what a country owes with what it produces, the debt-to-GDP ratio reliably indicates that particular country's ability to pay back its debts." (https://www.investopedia.com/terms/d/debtgdpratio.asp)
+
+By knowing the debt:gdp ratio with the HDI, we can understand how each country is managing their debt and if it extended beyond the 77% for developed countries and the 64% for developing countries as indicated by the World Bank to verify if it slows economic growth. 
+
 ### Debt:GDP Ratio by Country 
 
 ```{r}
@@ -302,23 +314,24 @@ world_debt_gdp_ratio = df_transpose
 world_debt_gdp_ratio = world_debt_gdp_ratio[2:48,] %>% mutate_if(is.character,as.double)
 
 world_debt_gdp_ratio$Year = row.names(world_debt_gdp_ratio)
+world_debt_gdp_ratio <- world_debt_gdp_ratio[-(1:10),] 
 
 w <- highchart() %>% 
-  hc_xAxis(categories = world_debt_gdp_ratio$Year) %>% 
+  hc_xAxis(categories = world_debt_gdp_ratio$Year, na.RM=TRUE)  %>% 
   hc_add_series(name = "Argentina", 
-                data = world_debt_gdp_ratio$Argentina,
+                data = world_debt_gdp_ratio$Argentina, na.RM=TRUE,
                 color = "#D55400") %>% 
   hc_add_series(name = "China", 
-                data = world_debt_gdp_ratio$"China, People's Republic of",
+                data = world_debt_gdp_ratio$"China, People's Republic of",na.RM=TRUE,
                 color = "#227FBB") %>% 
   hc_add_series(name = "India", 
-                data = world_debt_gdp_ratio$India,
+                data = world_debt_gdp_ratio$India,na.RM=TRUE,
                 color = "#1ECE6D") %>% 
   hc_add_series(name = "Peru", 
-                data = world_debt_gdp_ratio$Peru,
+                data = world_debt_gdp_ratio$Peru,na.RM=TRUE,
                 color = "#F2C500") %>% 
   hc_add_series(name = "United States of America", 
-                data = world_debt_gdp_ratio$"United States",
+                data = world_debt_gdp_ratio$"United States",na.RM=TRUE,
                 color= '#2B3E51') 
 
 # customize interactive line chart
@@ -327,7 +340,7 @@ w <- w %>%
            margin = 20, 
            align = "left",
            style = list(color = "steelblue")) %>% 
-  hc_subtitle(text = "1980 to 2025",
+  hc_subtitle(text = "1990 to 2025",
               align = "left",
               style = list(color = "#2b908f", 
                            fontWeight = "bold")) %>% 
@@ -343,21 +356,27 @@ w <- w %>%
              shared = TRUE, 
              borderWidth = 4) %>% 
   hc_exporting(enabled = TRUE)
-
 w
+
 
 
 ```
 
+### A Holistic View on Advanced Economies versus Developing Countries Debt:GDP Ratio Over Time
+The graph below demonstrates that even over the past few years, debt:gdp ratio has gradually increased over time for both advanced and developing countries. This verifies the fact that advanced economies have a higher debt:gdp ratio and developing countries have lower debt:gdp ratio, and therefore, developing countries are more sensitive to the impacts of incurring debt (thus lower threshold is needed to pass to slow economic growth, which is consistent with the HDI trends above.)
+
 ### Advanced Economies versus Developing Countries Debt:GDP Ratio Over Time
+
 ```{r}
+
+world_debt_gdp_ratio <- world_debt_gdp_ratio[-(1:10),] 
+
 w2 <- highchart() %>% 
   hc_xAxis(categories = world_debt_gdp_ratio$Year) %>% 
   hc_add_series(name = "Advanced Economies", 
                 data = world_debt_gdp_ratio$`Advanced economies`) %>%
   hc_add_series(name = "Developing Countries", 
                 data = world_debt_gdp_ratio$`Emerging market and developing economies`) 
-w2
 
 # customize interactive line chart
 w2 <- w2 %>%
@@ -365,7 +384,7 @@ w2 <- w2 %>%
            margin = 20, 
            align = "left",
            style = list(color = "steelblue")) %>% 
-  hc_subtitle(text = "1930 to 2026",
+  hc_subtitle(text = "2000 to 2025",
               align = "left",
               style = list(color = "#2b908f", 
                            fontWeight = "bold")) %>% 
